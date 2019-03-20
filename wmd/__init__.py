@@ -435,7 +435,7 @@ class WMD(object):
             dists[i, i] = 0
         return libwmdrelax.emd(w1, w2, dists, self._exact_cache)
 
-    def cache_centroids(self):
+    def cache_centroids(self, length_word_embeddings: int = None):
         """
         Calculates all the nBOW centroids and saves them into a hidden internal
         attribute. Consumes much memory, but exchanges it for the very fast
@@ -444,10 +444,12 @@ class WMD(object):
         :return: None
         """
         self._log.info("Caching the centroids...")
+        if length_word_embeddings is None:
+            length_word_embeddings = self.embeddings[words[0]].shape[0]
         keys = []
         _, words, _ = self.nbow[next(iter(self.nbow))]
         centroids = numpy.zeros(
-            (sum(1 for _ in self.nbow), self.embeddings[words[0]].shape[0]),
+            (sum(1 for _ in self.nbow), length_word_embeddings),
             dtype=numpy.float32)
         for i, key in enumerate(self.nbow):
             centroid = self._get_centroid_by_index(key)
